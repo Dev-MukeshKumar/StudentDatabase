@@ -3,6 +3,9 @@ package com.student.database
 import com.student.database.operations.Operation1._
 import com.student.database.operations.Operation2.executeOperation2
 import com.student.database.operations.Operation3.executeOperation3
+import com.student.database.operations.Operation4.executeOperation4
+import com.student.database.operations.Operation5.executeOperation5
+import com.student.database.operations.Operation6.executeOperation6
 import data.models._
 import org.apache.log4j.Logger
 import org.apache.spark.SparkConf
@@ -22,12 +25,14 @@ object StudentDatabaseApp extends Serializable {
 
     logger.info("Started Student database App!")
 
+    //spark session creation
     val spark = SparkSession.builder()
       .config(getSparkConf)
       .getOrCreate()
 
     import spark.implicits._
 
+    //read meta tables data and create a map with id and value pair
     val subjects = spark.read.format("org.apache.spark.sql.cassandra")
       .options(Map("keyspace" -> "assignment2", "table" -> "subjects"))
       .load
@@ -66,12 +71,12 @@ object StudentDatabaseApp extends Serializable {
 
     val classesGroupMapper = mapClassAndGroupMapper(classGroupMapperRead.collect())
 
-    menu(Success(None), spark, logger, subjects, classes, groups, tests, subjectsGroupMapper, classesGroupMapper)
-
     //un-persist data
     classGroupMapperRead.unpersist()
     subjectsGroupMapperRead.unpersist()
 
+    //start the operations menu
+    menu(Success(None), spark, logger, subjects, classes, groups, tests, subjectsGroupMapper, classesGroupMapper)
   }
 
   @tailrec
@@ -107,18 +112,29 @@ object StudentDatabaseApp extends Serializable {
         menu(Success(None),sparkSession,logger,subjects,classes,groups,tests,subjectsGroupMapper,classesGroupMapper)
       }
       case Success(Some(value)) if value == 2 => {
-        executeOperation2(sparkSession, logger, subjects, classes, groups, subjectsGroupMapper, classesGroupMapper)
+        executeOperation2(sparkSession, logger, subjects, classes, subjectsGroupMapper)
         waitForPressingEnter()
         menu(Success(None), sparkSession, logger, subjects, classes, groups, tests, subjectsGroupMapper, classesGroupMapper)
       }
       case Success(Some(value)) if value == 3 => {
-        executeOperation3(sparkSession, logger, subjects, classes, groups, subjectsGroupMapper, classesGroupMapper)
+        executeOperation3(sparkSession, logger)
         waitForPressingEnter()
         menu(Success(None), sparkSession, logger, subjects, classes, groups, tests, subjectsGroupMapper, classesGroupMapper)
       }
-      case Success(Some(value)) if value >= 4 && value <= 6 => {
-        println("Will be implemented today!")
-        menu(Success(None),sparkSession,logger,subjects,classes,groups,tests,subjectsGroupMapper,classesGroupMapper)
+      case Success(Some(value)) if value == 4 => {
+        executeOperation4(sparkSession, logger, classes)
+        waitForPressingEnter()
+        menu(Success(None), sparkSession, logger, subjects, classes, groups, tests, subjectsGroupMapper, classesGroupMapper)
+      }
+      case Success(Some(value)) if value == 5 => {
+        executeOperation5(sparkSession, logger)
+        waitForPressingEnter()
+        menu(Success(None), sparkSession, logger, subjects, classes, groups, tests, subjectsGroupMapper, classesGroupMapper)
+      }
+      case Success(Some(value)) if value == 6 => {
+        executeOperation6(sparkSession, logger, subjects, classes, subjectsGroupMapper)
+        waitForPressingEnter()
+        menu(Success(None), sparkSession, logger, subjects, classes, groups, tests, subjectsGroupMapper, classesGroupMapper)
       }
       case _ => {
         println("\nEnter a valid number!")
@@ -126,6 +142,8 @@ object StudentDatabaseApp extends Serializable {
       }
   }
 
+
+  //utility functions
   def waitForPressingEnter(): Unit = {
     println("\npress enter to continue.")
     readLine()
@@ -162,6 +180,4 @@ object StudentDatabaseApp extends Serializable {
       else mapClassAndGroupMapper(data, i + 1, result + (classId -> List(data(i).group_id.getOrElse(0))))
     }
   }
-
-
 }

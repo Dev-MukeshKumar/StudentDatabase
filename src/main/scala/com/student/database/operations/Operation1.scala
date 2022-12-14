@@ -1,11 +1,11 @@
 package com.student.database.operations
 
-import data.models.{Mark, Student}
+import data.models._
 import org.apache.log4j.Logger
 import org.apache.spark.sql._
 
 import scala.annotation.tailrec
-import scala.util.{Failure, Success, Try}
+import scala.util._
 import scala.io.StdIn.readInt
 
 object Operation1 {
@@ -20,8 +20,13 @@ object Operation1 {
                          subjectsGroupMapper:Map[Int,List[Int]],
                          classesGroupMapper:Map[Int,List[Int]]): Unit
   = {
+
+
+    //get students details and subjects related to the group ID
     val studentData = getStudent(spark,logger)
     val subjectList = subjectsGroupMapper.get(studentData.group_id.getOrElse(0)).getOrElse(List.empty)
+
+    //check for student data then display and repeat operation based on conditions
     if(studentData.student_id.getOrElse(0) == 0) executeOperation1(spark,logger,subjects,classes,groups,subjectsGroupMapper,classesGroupMapper)
     else if (!subjectList.contains(2)){
       logger.info(s"Student :${studentData.firstname.getOrElse("")} with ID: ${studentData.student_id.getOrElse(0)} data viewed.")
@@ -35,6 +40,7 @@ object Operation1 {
     }
   }
 
+  //utility functions
   @tailrec
   private def getStudent(spark: SparkSession,logger: Logger,id: Int = getStudentId()): Student = {
     import spark.implicits._
@@ -50,7 +56,6 @@ object Operation1 {
       getStudent(spark,logger)
     }
     else readData(0)
-
   }
 
   private def getMathTestAvgScore(spark: SparkSession, logger: Logger, id: Int):Double  = {
@@ -59,7 +64,7 @@ object Operation1 {
     val readData = spark.read.format("org.apache.spark.sql.cassandra")
       .options(Map("keyspace" -> "assignment2", "table" -> "marks"))
       .load
-      .where(s"student_id=$id")
+      .where(s"subject_id=2 and student_id=$id")
       .as[Mark].take(1)
     println(readData(0).test_marks.getOrElse(Map()))
     if (readData.length == 0) {

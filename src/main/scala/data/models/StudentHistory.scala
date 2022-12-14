@@ -1,7 +1,5 @@
 package data.models
 
-import org.joda.time.DateTime
+import java.time.LocalDate
 
-import java.util.UUID
-
-case class StudentHistory(group_id: Option[Int], class_id: Option[Int], date_of_leaving: Option[DateTime], student_id: Option[UUID], firstname: Option[String], lastname:Option[String])
+case class StudentHistory(group_id: Option[Int], class_id: Option[Int], date_of_leaving: Option[LocalDate], student_id: Option[Int], firstname: Option[String], lastname:Option[String])

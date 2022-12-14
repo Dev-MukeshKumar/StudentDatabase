@@ -17,9 +17,7 @@ object Operation2 {
                          logger: Logger,
                          subjects: Map[Int, String],
                          classes: Map[Int, String],
-                         groups: Map[Int, String],
-                         subjectsGroupMapper: Map[Int, List[Int]],
-                         classesGroupMapper: Map[Int, List[Int]]): Unit = {
+                         subjectsGroupMapper: Map[Int, List[Int]]): Unit = {
 
     val subjectName = getSubjectName()
     val className = getClassName()
@@ -43,15 +41,6 @@ object Operation2 {
     println(s"Highest average test: ${arrangedAverage(0).testId} with average ${arrangedAverage(0).mark}")
     println(s"Lowest average test: ${arrangedAverage(2).testId} with average ${arrangedAverage(2).mark}")
     println("Percentage increase in average: "+percentageIncreaseInAverage(arrangedAverage)+"%")
-    
-//    val testAverageMarks = List( marksData.map(data => data.get(1).getOrElse(0.0)).sum / marksData.length,
-//    marksData.map(data => data.get(2).getOrElse(0.0)).sum / marksData.length,
-//    marksData.map(data => data.get(3).getOrElse(0.0)).sum / marksData.length)
-//
-//    print(s"test 1 average mark: ${testAverageMarks(0)}\ntest 2 average mark: ${testAverageMarks(1)}\ntest 3 average mark: ${testAverageMarks(2)}\n")
-//    println("Highest average: test "+(testAverageMarks.indexOf(testAverageMarks.max)+1))
-//    println("Lowest average: test "+(testAverageMarks.indexOf(testAverageMarks.min)+1))
-//    println("Percentage of increase in average:"+ (testAverageMarks.max - testAverageMarks.min)/100 + "%")
 
   }
 
